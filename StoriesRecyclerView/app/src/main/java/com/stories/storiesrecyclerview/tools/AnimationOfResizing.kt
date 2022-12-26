@@ -30,3 +30,7 @@ fun animation(p0: View?, from: Float, to: Float, duration: Long, animCallback: A
         }
     }
 }
+
+interface AnimationCallback {
+    fun doOnAnimationEnd()
+}
