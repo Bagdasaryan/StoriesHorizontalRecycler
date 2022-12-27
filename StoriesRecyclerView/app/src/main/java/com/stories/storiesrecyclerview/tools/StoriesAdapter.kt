@@ -1,6 +1,5 @@
 package com.stories.storiesrecyclerview.tools
 
-import RecyclerTouchListener
 import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater

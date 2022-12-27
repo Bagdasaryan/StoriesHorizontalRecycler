@@ -10,60 +10,36 @@ class StoriesLayoutManager(context: Context) : LinearLayoutManager(context) {
         orientation = HORIZONTAL
     }
 
-    private var callback: OnItemSelectedListener? = null
     private lateinit var recyclerView: RecyclerView
+
+    private val snapHelper: LinearSnapHelper = object : LinearSnapHelper() {
+        override fun findTargetSnapPosition(
+            layoutManager: RecyclerView.LayoutManager,
+            velocityX: Int,
+            velocityY: Int
+        ): Int {
+            val centerView = findSnapView(layoutManager) ?: return RecyclerView.NO_POSITION
+            val position = layoutManager.getPosition(centerView)
+            var targetPosition = -1
+            if (layoutManager.canScrollHorizontally()) {
+                targetPosition = if (velocityX < 0) {
+                    position - 1
+                } else {
+                    position + 1
+                }
+            }
+            val firstItem = 0
+            val lastItem = layoutManager.itemCount - 1
+            targetPosition = Math.min(lastItem, Math.max(targetPosition, firstItem))
+            return targetPosition
+        }
+    }
 
     override fun onAttachedToWindow(view: RecyclerView?) {
         super.onAttachedToWindow(view)
         recyclerView = view!!
 
         // Smart snapping
-        LinearSnapHelper().attachToRecyclerView(recyclerView)
-    }
-
-    override fun onLayoutChildren(recycler: RecyclerView.Recycler?, state: RecyclerView.State) {
-        super.onLayoutChildren(recycler, state)
-    }
-
-    override fun scrollHorizontallyBy(dx: Int, recycler: RecyclerView.Recycler?, state: RecyclerView.State?): Int {
-        return if(orientation == HORIZONTAL) {
-            val scrolled = super.scrollHorizontallyBy(dx, recycler, state)
-            scrolled
-        } else {
-            0
-        }
-    }
-
-    override fun onScrollStateChanged(state: Int) {
-        super.onScrollStateChanged(state)
-
-        // When scroll stops we notify on the selected item
-        if (state == RecyclerView.SCROLL_STATE_IDLE) {
-
-            // Find the closest child to the recyclerView center --> this is the selected item.
-            val recyclerViewCenterX = getRecyclerViewCenterX()
-            var minDistance = recyclerView.width
-            var position = -1
-            for (i in 0 until recyclerView.childCount) {
-                val child = recyclerView.getChildAt(i)
-                val childCenterX = getDecoratedLeft(child) + (getDecoratedRight(child) - getDecoratedLeft(child)) / 2
-                val newDistance = Math.abs(childCenterX - recyclerViewCenterX)
-                if (newDistance < minDistance) {
-                    minDistance = newDistance
-                    position = recyclerView.getChildLayoutPosition(child)
-                }
-            }
-
-            // Notify on item selection
-            callback?.onItemSelected(position)
-        }
-    }
-
-    private fun getRecyclerViewCenterX() : Int {
-        return (recyclerView.right - recyclerView.left)/2 + recyclerView.left
-    }
-
-    interface OnItemSelectedListener {
-        fun onItemSelected(layoutPosition: Int)
+        snapHelper.attachToRecyclerView(recyclerView)
     }
 }

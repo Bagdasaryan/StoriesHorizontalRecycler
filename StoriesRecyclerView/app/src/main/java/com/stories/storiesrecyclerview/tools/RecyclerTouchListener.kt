@@ -1,7 +1,7 @@
+package com.stories.storiesrecyclerview.tools
+
 import android.view.MotionEvent
 import android.view.View
-import com.stories.storiesrecyclerview.tools.AnimationCallback
-import com.stories.storiesrecyclerview.tools.animation
 
 class RecyclerTouchListener : View.OnTouchListener {
     private val RESIZE_COEFFICIENT = 0.90f
